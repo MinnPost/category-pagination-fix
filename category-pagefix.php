@@ -26,26 +26,30 @@ Tested with WordPress 3. Works with wp-pagenavi
  * /categoryname/page/2
  * the 'page' looks like a post name, not the keyword "page"
  */
-add_filter( 'request', 'remove_page_from_query_string' );
-function remove_page_from_query_string( $query_string ) {
-	if ( isset( $query_string['name'] ) && 'page' === $query_string['name'] && isset( $query_string['page'] ) ) {
-		unset( $query_string['name'] );
-		// 'page' in the query_string might look like '/2', so explode it out
-		$page_part             = explode( '/', $query_string['page'] );
-		$query_string['paged'] = end( $page_part );
+if ( ! function_exists( 'remove_page_from_query_string' ) ) :
+	add_filter( 'request', 'remove_page_from_query_string' );
+	function remove_page_from_query_string( $query_string ) {
+		if ( isset( $query_string['name'] ) && 'page' === $query_string['name'] && isset( $query_string['page'] ) ) {
+			unset( $query_string['name'] );
+			// 'page' in the query_string might look like '/2', so explode it out
+			$page_part             = explode( '/', $query_string['page'] );
+			$query_string['paged'] = end( $page_part );
+		}
+		return $query_string;
 	}
-	return $query_string;
-}
+endif;
 
 // following are code adapted from Custom Post Type Category Pagination Fix by jdantzer
-add_filter( 'request', 'fix_category_pagination' );
-function fix_category_pagination( $qs ) {
-	if ( isset( $qs['category_name'] ) && isset( $qs['paged'] ) ) {
-		$qs['post_type'] = get_post_types(array(
-			'public'   => true,
-			'_builtin' => false,
-		));
-		array_push( $qs['post_type'], 'post' );
+if ( ! function_exists( 'fix_category_pagination' ) ) :
+	add_filter( 'request', 'fix_category_pagination' );
+	function fix_category_pagination( $qs ) {
+		if ( isset( $qs['category_name'] ) && isset( $qs['paged'] ) ) {
+			$qs['post_type'] = get_post_types(array(
+				'public'   => true,
+				'_builtin' => false,
+			));
+			array_push( $qs['post_type'], 'post' );
+		}
+		return $qs;
 	}
-	return $qs;
-}
+endif;
